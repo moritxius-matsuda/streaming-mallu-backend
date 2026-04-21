@@ -13,12 +13,12 @@ export interface Session {
 }
 
 export class SessionManager {
-  private redis: RedisClientType;
+  private redis: any;
   private SESSION_PREFIX = 'session:';
   private SIGNAL_PREFIX = 'signal:';
   private ICE_PREFIX = 'ice:';
 
-  constructor(redis: RedisClientType) {
+  constructor(redis: any) {
     this.redis = redis;
   }
 
