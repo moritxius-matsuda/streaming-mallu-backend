@@ -110,7 +110,7 @@ export class SessionManager {
   async addIceCandidate(sessionId: string, userId: string, candidate: any): Promise<void> {
     const key = `${this.ICE_PREFIX}${sessionId}:${userId}`;
     const candidates = await this.redis.lRange(key, 0, -1);
-    const parsed = candidates.map((c) => JSON.parse(c));
+    const parsed = candidates.map((c: string) => JSON.parse(c));
     parsed.push(candidate);
     
     await this.redis.del(key);
@@ -123,7 +123,7 @@ export class SessionManager {
   async getIceCandidates(sessionId: string, userId: string): Promise<any[]> {
     const key = `${this.ICE_PREFIX}${sessionId}:${userId}`;
     const candidates = await this.redis.lRange(key, 0, -1);
-    return candidates.map((c) => JSON.parse(c));
+    return candidates.map((c: string) => JSON.parse(c));
   }
 
   async deleteSession(sessionId: string): Promise<void> {
