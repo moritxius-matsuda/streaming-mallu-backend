@@ -72,6 +72,15 @@ io.on('connection', (socket) => {
       // Notify others
       io.to(sessionId).emit('session-updated', session);
 
+      // If viewer is joining and there's a stored offer, send it immediately
+      if (!isStreamer) {
+        const storedOffer = await sessionManager.getOffer(sessionId);
+        if (storedOffer) {
+          console.log(`[Socket.IO] Sending stored offer to viewer ${userId}`);
+          socket.emit('offer-available', { offer: storedOffer });
+        }
+      }
+
       socket.emit('join-success', { session });
     } catch (error) {
       console.error('[Socket.IO] Error in join-session:', error);
@@ -149,8 +158,9 @@ io.on('connection', (socket) => {
         const session = await sessionManager.removeViewer(sessionId, userId);
         io.to(sessionId).emit('session-updated', { session });
 
-        // Clean up empty sessions
-        if (session && session.viewers.length === 0 && session.streamerId !== userId) {
+        // Clean up sessions only when streamer disconnects
+        if (session && userId === session.streamerId) {
+          console.log(`[Socket.IO] Streamer disconnected, deleting session ${sessionId}`);
           await sessionManager.deleteSession(sessionId);
         }
       } catch (error) {
